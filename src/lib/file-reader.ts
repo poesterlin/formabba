@@ -71,7 +71,7 @@ export function format(text: string) {
                 text: sanitize(result.message),
                 type,
                 id: i,
-                ofSameTypeAsLast,
+                ofSameTypeAsLast: ofSameTypeAsLast && !isFirstOfTheDay,
                 ofSameTypeAsNext: false,
                 isFirstOfTheDay,
             }
