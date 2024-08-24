@@ -1,12 +1,19 @@
 import { expose } from "comlink";
-import { format, readFileAsText } from "./file-reader";
+import { format, parseJson, readFileAsText } from "./file-reader";
 import type { Sender } from "./types";
 
 let senders: Sender[] = [];
 
 async function parse(file: File) {
+    if (!file) {
+        return;
+    }
+
+
+
     const text = await readFileAsText(file);
-    const res = format(text);
+    const type = file.type;
+    const res = type === "application/json" ? parseJson(text) : format(text);
     senders = res.senders;
 
     setMe(0);

@@ -21,3 +21,15 @@ export interface Message {
     ofSameTypeAsNext: boolean,
     isFirstOfTheDay: boolean,
 }
+
+export interface GoogleChatExport {
+    "creator": {
+        "name": string,
+        "email": string,
+        "user_type": string,
+    },
+    "created_date": string,
+    "text": string,
+    "topic_id": string,
+    "message_id": string
+}
