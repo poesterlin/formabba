@@ -165,7 +165,7 @@ export function parseJson(text: string) {
         messages.push({
             senderId: -1,
             date: new Date(),
-            text: "Error parsing JSON",
+            text: "Error parsing JSON\n" + e,
             type: MessageType.System,
             id: 0,
             ofSameTypeAsLast: false,
