@@ -55,7 +55,7 @@
 
 <style>
 	div {
-		width: 60vw;
+		width: 60%;
 		max-width: max-content;
 		text-wrap: pretty;
 		margin: 1rem 2rem;
