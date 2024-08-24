@@ -1,60 +1,99 @@
 <script lang="ts">
-	import { MessageType, type Message } from './file-reader';
+	import { MessageType, type Message, type Sender } from './types';
 
 	export let message: Message;
+	export let senders: Sender[];
 
-	$: pos =
-		message.type === MessageType.Sender ? (message.sender?.isMe ? 'right' : 'left') : 'center';
+	$: sender = senders[message.senderId];
+	$: pos = message.type === MessageType.Sender ? (sender?.isMe ? 'right' : 'left') : 'center';
+
+	const timeFormatter = new Intl.DateTimeFormat('de', {
+		hour: 'numeric',
+		minute: 'numeric'
+	});
+
+	const date = new Date(message.date);
+	const formattedDate = timeFormatter.format(date);
+
+	function getFormatedDate(date: Date) {
+		const dateFormatter = new Intl.DateTimeFormat('de', {
+			year: '2-digit',
+			month: '2-digit',
+			day: '2-digit'
+		});
+
+		return dateFormatter.format(date);
+	}
 </script>
 
+{#if message.isFirstOfTheDay}
+	<small class="date">
+		{getFormatedDate(date)}
+	</small>
+{/if}
+
 <div
-	style:float={pos}
 	class:system={message.type === MessageType.System}
 	class:noTopMargin={message.ofSameTypeAsLast}
 	class:noBottomMargin={message.ofSameTypeAsNext}
-	class={pos}
+	class:left={pos === 'left'}
+	class:right={pos === 'right'}
+	class:center={pos === 'center'}
 >
-	{#if !message.ofSameTypeAsLast && message.sender}
-		<small style:text-align={pos}>
-			{message.sender?.name}
+	{#if !message.ofSameTypeAsLast && sender}
+		<small style:text-align={pos} class="bold">
+			{sender?.name}
 		</small>
 	{/if}
-	<article style:background={message.sender?.color}>
+	<article style:background={sender?.color}>
 		<p>{@html message.text}</p>
+		<small style:text-align={pos}>
+			{formattedDate}
+		</small>
 	</article>
 </div>
 
 <style>
 	div {
 		width: 60vw;
+		max-width: max-content;
 		text-wrap: pretty;
 		margin: 1rem 2rem;
+		transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+		transition-behavior: allow-discrete;
+	}
+
+	div.left {
+		float: left;
+	}
+
+	div.right {
+		float: right;
 	}
 
 	article {
 		border-radius: 12px;
+		padding: 0.5rem;
 	}
 
 	p {
 		margin: 0;
-		padding: 0.7rem;
+		/* padding: 0.7rem; */
 	}
 
 	.system {
 		width: 80%;
 		color: gray;
-        margin: 0 auto;
+		margin: 0 auto;
 	}
 
-	div:global(.left) article {
+	div.left article {
 		border-top-left-radius: 0px;
 	}
 
-	div:global(.right) article {
+	div.right article {
 		border-top-right-radius: 0px;
 	}
-    
-  
 
 	div.noTopMargin {
 		margin-top: 0.1rem;
@@ -71,7 +110,18 @@
 
 	small {
 		width: 100%;
-        font-weight: bold;
 		display: inline-block;
+		color: rgb(31, 31, 31);
+	}
+
+	.bold {
+		font-weight: bold;
+	}
+
+	.date {
+		text-align: center;
+		width: 100%;
+		position: sticky;
+		top: 1rem;
 	}
 </style>

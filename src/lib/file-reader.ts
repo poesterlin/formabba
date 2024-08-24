@@ -1,3 +1,4 @@
+import { MessageType, type Message, type Sender } from "./types";
 
 export async function readFileAsText(file: File) {
     const reader = new FileReader();
@@ -8,31 +9,11 @@ export async function readFileAsText(file: File) {
     });
 }
 
-export enum MessageType {
-    System,
-    Sender
-}
 
-export interface Sender {
-    name: string,
-    color: string,
-    isMe: boolean
-}
-
-export interface Message {
-    type: MessageType,
-    text: string,
-    sender?: Sender,
-    date: Date,
-    id: number,
-    ofSameTypeAsLast: boolean,
-    ofSameTypeAsNext: boolean,
-}
-
-const regex = /(?<day>\d{2})\.(?<month>\d{2})\.(?<year>\d{2}), (?<hour>\d{2}):(?<minute>\d{2}) - ((?<sender>[\s+\d]{5,}|[a-zA-Z\s]+):\s)?(?<message>.+)$/
-export const senders: { [key: string]: Sender } = {};
+const regex = /(?<day>\d{2})\.(?<month>\d{2})\.(?<year>\d{2}), (?<hour>\d{2}):(?<minute>\d{2}) - ((?<sender>.+?):\s)?(?<message>.+)$/
 
 export function format(text: string) {
+    const senders: Sender[] = [];
     const lines = text.split("\n");
 
     let last: Message | undefined = undefined;
@@ -53,44 +34,53 @@ export function format(text: string) {
         if (result.message) {
             const name = result.sender;
             const type = name ? MessageType.Sender : MessageType.System;
-            let sender = senders[name];
+            let sender = senders.find(s => s.name === name);
 
             if (!sender && type === MessageType.Sender) {
                 sender = {
                     name,
                     color: hashColor(name),
-                    isMe: false
+                    isMe: false,
+                    id: senders.length,
                 };
-                senders[name] = sender;
+                senders.push(sender);
             }
 
+            const date = new Date(
+                parse(result.year) + 2000,
+                parse(result.month) - 1,
+                parse(result.day),
+                parse(result.hour),
+                parse(result.minute)
+            );
+
             let ofSameTypeAsLast = false;
-            if (last && last.sender === sender) {
+            if (last && last.senderId === sender?.id) {
                 ofSameTypeAsLast = true;
                 last.ofSameTypeAsNext = true;
             }
 
+            let isFirstOfTheDay = true;
+            if (last) {
+                isFirstOfTheDay = !isSameDay(last.date, date);
+            }
+
             last = {
-                sender,
-                date: new Date(
-                    parse(result.year),
-                    parse(result.month) - 1,
-                    parse(result.day),
-                    parse(result.hour),
-                    parse(result.minute)
-                ),
+                senderId: sender?.id ?? -1,
+                date,
                 text: sanitize(result.message),
                 type,
                 id: i,
                 ofSameTypeAsLast,
                 ofSameTypeAsNext: false,
+                isFirstOfTheDay,
             }
 
             messages.push(last);
         }
     }
 
-    return messages;
+    return { messages, senders };
 
 }
 
@@ -110,4 +100,8 @@ function parse(text: string) {
 
 function sanitize(text: string) {
     return text.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+}
+
+function isSameDay(a: Date, b: Date) {
+    return a.getDate() === b.getDate() && a.getMonth() === b.getMonth() && a.getFullYear() === b.getFullYear();
 }
