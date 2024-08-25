@@ -9,13 +9,11 @@ export async function readFileAsText(file: File) {
     });
 }
 
-
 const regex = /(?<day>\d{2})\.(?<month>\d{2})\.(?<year>\d{2}), (?<hour>\d{2}):(?<minute>\d{2}) - ((?<sender>.+?):\s)?(?<message>.+)$/
 
 export function format(text: string) {
     const messages: Message[] = [];
     const senders: Sender[] = [];
-
 
     const lines = text.split("\n");
 
@@ -83,7 +81,6 @@ export function format(text: string) {
     }
 
     return { messages, senders };
-
 }
 
 export function parseJson(text: string) {

@@ -9,16 +9,23 @@ async function parse(file: File) {
         return;
     }
 
-
-
     const text = await readFileAsText(file);
     const type = file.type;
-    const res = type === "application/json" ? parseJson(text) : format(text);
+    const res = type === "application/json" || isParsableJson(text) ? parseJson(text) : format(text);
     senders = res.senders;
 
     setMe(0);
 
     return res;
+}
+
+function isParsableJson(text: string) {
+    try {
+        JSON.parse(text);
+        return true;
+    } catch {
+        return false;
+    }
 }
 
 async function setMe(mySenderId: number) {
