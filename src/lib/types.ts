@@ -23,13 +23,15 @@ export interface Message {
 }
 
 export interface GoogleChatExport {
-    "creator": {
-        "name": string,
-        "email": string,
-        "user_type": string,
-    },
-    "created_date": string,
-    "text": string,
-    "topic_id": string,
-    "message_id": string
+    messages: {
+        "creator": {
+            "name": string,
+            "email": string,
+            "user_type": string,
+        },
+        "created_date": string,
+        "text": string,
+        "topic_id": string,
+        "message_id": string
+    }[]
 }

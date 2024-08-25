@@ -89,11 +89,12 @@ export function parseJson(text: string) {
     const months = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
 
     try {
-        const json = JSON.parse(text) as GoogleChatExport[];
+        const json = JSON.parse(text) as GoogleChatExport;
         let last: Message | undefined = undefined;
+        const jsonMessages = json.messages;
 
-        for (let i = 0; i < json.length; i++) {
-            const result = json[i];
+        for (let i = 0; i < jsonMessages.length; i++) {
+            const result = jsonMessages[i];
             if (!result.text) {
                 continue;
             }
