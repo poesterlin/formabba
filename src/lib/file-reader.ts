@@ -9,7 +9,7 @@ export async function readFileAsText(file: File) {
     });
 }
 
-const regex = /(?<day>\d{2})\.(?<month>\d{2})\.(?<year>\d{2}), (?<hour>\d{2}):(?<minute>\d{2}) - ((?<sender>.+?):\s)?(?<message>.+)$/
+const regex = /(?<day>\d{2})\.(?<month>\d{2})\.(?<year>\d{2}), (?<hour>\d{1,2}):(?<minute>\d{2})(.*?) - ((?<sender>.+?):\s)?(?<message>.+)$/
 
 export function format(text: string) {
     const messages: Message[] = [];
@@ -113,7 +113,6 @@ export function parseJson(text: string) {
                 senders.push(sender);
             }
 
-            // created_date: "Donnerstag, 16. März 2023 um 16:59:19 UTC"
             const regex = /(?<day>\d{2})\. (?<month>.+?) (?<year>\d{4}) um (?<hour>\d{2}):(?<minute>\d{2}):(?<second>\d{2}).*$/
             const match = regex.exec(result.created_date)?.groups;
 
