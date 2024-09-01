@@ -7,6 +7,8 @@
 	$: sender = senders[message.senderId];
 	$: pos = message.type === MessageType.Sender ? (sender?.isMe ? 'right' : 'left') : 'center';
 
+	const debug = false;
+
 	const timeFormatter = new Intl.DateTimeFormat('de', {
 		hour: 'numeric',
 		minute: 'numeric'
@@ -33,6 +35,7 @@
 {/if}
 
 <div
+	class="message"
 	class:system={message.type === MessageType.System}
 	class:noTopMargin={message.ofSameTypeAsLast}
 	class:noBottomMargin={message.ofSameTypeAsNext}
@@ -51,13 +54,26 @@
 			{formattedDate}
 		</small>
 	</article>
+	<!-- absolute positioned bar to test the height calculation -->
+	{#if debug}
+		<div
+			style="background: {sender?.color ??
+				'green'}; position: absolute; z-index: 1; opacity: 0.5; left: 0; right: 0; bottom: 0; border: 1px solid black;"
+			style:height={message.height + 'px'}
+		>
+			<span
+				style="opacity: 1; color: black; position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 1.8rem;"
+				>{message.height}px x {message.lines} Lines</span
+			>
+		</div>
+	{/if}
 </div>
 
 <style>
-	div {
+	div.message {
 		width: 60%;
 		max-width: max-content;
-		text-wrap: pretty;
+		/* text-wrap: pretty; */
 		margin: 1rem 2rem;
 		transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
 		transition-behavior: allow-discrete;
@@ -78,7 +94,8 @@
 
 	p {
 		margin: 0;
-		/* padding: 0.7rem; */
+		word-break: break-word;
+		white-space: pre-wrap;
 	}
 
 	.system {

@@ -11,7 +11,7 @@ export async function readFileAsText(file: File) {
 
 const regex = /(?<day>\d{2})\.(?<month>\d{2})\.(?<year>\d{2}), (?<hour>\d{1,2}):(?<minute>\d{2})(.*?) - ((?<sender>.+?):\s)?(?<message>.+)$/
 
-export function format(text: string) {
+export function format(text: string, maxWidth: number, fontSize: number) {
     const messages: Message[] = [];
     const senders: Sender[] = [];
 
@@ -65,7 +65,7 @@ export function format(text: string) {
                 isFirstOfTheDay = !isSameDay(last.date, date);
             }
 
-            last = {
+            last = addChromeHeight({
                 senderId: sender?.id ?? -1,
                 date,
                 text: sanitize(result.message),
@@ -74,16 +74,19 @@ export function format(text: string) {
                 ofSameTypeAsLast: ofSameTypeAsLast && !isFirstOfTheDay,
                 ofSameTypeAsNext: false,
                 isFirstOfTheDay,
-            }
+                lines: calculateTextBoxHeight(result.message, maxWidth),
+            }, fontSize);
 
             messages.push(last);
         }
     }
 
+    console.log(wordCache)
+
     return { messages, senders };
 }
 
-export function parseJson(text: string) {
+export function parseJson(text: string, maxWidth: number, fontSize: number) {
     const messages: Message[] = [];
     const senders: Sender[] = [];
     const months = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
@@ -141,7 +144,7 @@ export function parseJson(text: string) {
                 isFirstOfTheDay = !isSameDay(last.date, date);
             }
 
-            last = {
+            last = addChromeHeight({
                 senderId: sender?.id ?? -1,
                 date,
                 text: sanitize(result.text),
@@ -150,7 +153,8 @@ export function parseJson(text: string) {
                 ofSameTypeAsLast: ofSameTypeAsLast && !isFirstOfTheDay,
                 ofSameTypeAsNext: false,
                 isFirstOfTheDay,
-            }
+                lines: calculateTextBoxHeight(result.text, maxWidth),
+            }, fontSize);
 
             messages.push(last);
         }
@@ -168,6 +172,8 @@ export function parseJson(text: string) {
             ofSameTypeAsLast: false,
             ofSameTypeAsNext: false,
             isFirstOfTheDay: false,
+            height: 1,
+            lines: 1,
         });
     }
 
@@ -194,4 +200,96 @@ function sanitize(text: string) {
 
 function isSameDay(a: Date, b: Date) {
     return a.getDate() === b.getDate() && a.getMonth() === b.getMonth() && a.getFullYear() === b.getFullYear();
+}
+
+const canvas = new OffscreenCanvas(1, 1);
+const context = canvas.getContext("2d");
+
+export function setFont(font: string) {
+    if (!context) {
+        return;
+    }
+
+    context.font = font;
+}
+
+export function calculateTextBoxHeight(text: string, maxWidth: number) {
+    if (!context) {
+        return 0;
+    }
+
+    const words = text.split(" ").map(word => calculateWordWidth(word + " "));
+
+    let height = 2;
+    let currentWidth = 0;
+
+    for (let i = 0; i < words.length; i++) {
+        currentWidth += words[i];
+        let overflow = false;
+        while (currentWidth > maxWidth) {
+            height++;
+            currentWidth -= maxWidth;
+            overflow = true;
+        }
+
+        if (overflow) {
+            currentWidth = words[i] % maxWidth;
+        }
+    }
+
+    // if the last line is almost full, add another line
+    const errorRatePerLine = 0.25;
+    const errorRate = 1 - errorRatePerLine * height;
+    if (currentWidth > (maxWidth * errorRate)) {
+        height++;
+    }
+
+    return height;
+}
+
+const wordCache = new Map<string, number>();
+
+function calculateWordWidth(word: string) {
+    const cached = wordCache.get(word);
+    if (cached) {
+        return cached;
+    }
+
+    const width = context?.measureText(word).width ?? 0;
+    wordCache.set(word, width);
+    return width;
+}
+
+function addChromeHeight(message: Omit<Message, "height"> & Partial<Message>, fontSize: number): Message {
+    let topMargin = fontSize;
+    let bottomMargin = fontSize;
+
+    const padding = fontSize;
+    let otherElements = 0;
+
+    if (message.isFirstOfTheDay) {
+        topMargin += 2 * fontSize;
+    }
+
+    if (message.ofSameTypeAsLast) {
+        // no top margin
+        topMargin = 0.1 * fontSize;
+    } else {
+        // add height of username
+        otherElements += fontSize * 1.1;
+    }
+
+    // no bottom margin
+    if (message.ofSameTypeAsNext) {
+        bottomMargin = 0.1 * fontSize;
+    } else {
+        // bottomMargin += 0.5 * fontSize;
+    }
+
+    const lineDistance = 0.205 * fontSize;
+    const lines = message.lines * fontSize + (message.lines - 1) * lineDistance;
+
+    message.height = lines + topMargin + bottomMargin + padding + otherElements;
+
+    return message as Message;
 }

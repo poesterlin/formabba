@@ -1,18 +1,30 @@
 import { expose } from "comlink";
-import { format, parseJson, readFileAsText } from "./file-reader";
-import type { Sender } from "./types";
+import { format, parseJson, readFileAsText, setFont } from "./file-reader";
+import type { Message, Sender } from "./types";
+import Fuse from "fuse.js";
 
 let senders: Sender[] = [];
 
-async function parse(file: File) {
+const fuse = new Fuse([] as Message[], {
+    keys: ["text"],
+    threshold: 0.2,
+    ignoreLocation: true,
+    minMatchCharLength: 3,
+});
+
+async function parse(file: File, maxWidth: number, fontSize: number) {
     if (!file) {
         return;
     }
 
+    setFont('"Gill Sans", Calibri');
+
     const text = await readFileAsText(file);
     const type = file.type;
-    const res = type === "application/json" || isParsableJson(text) ? parseJson(text) : format(text);
+    const res = type === "application/json" || isParsableJson(text) ? parseJson(text, maxWidth, fontSize) : format(text, maxWidth, fontSize);
     senders = res.senders;
+
+    fuse.setCollection(res.messages);
 
     setMe(0);
 
@@ -45,12 +57,18 @@ async function getSenders() {
     return senders;
 }
 
+async function search(text: string) {
+    const results = fuse.search(text);
+    return results.map(r => r.refIndex).sort((a, b) => a - b);
+}
+
 type PromiseMethod = (...args: never) => Promise<unknown>;
 
 const methods = {
     getSenders,
     parse,
     setMe,
+    search,
 } satisfies Record<string, PromiseMethod>;
 
 export type ProcessWorker = typeof methods;

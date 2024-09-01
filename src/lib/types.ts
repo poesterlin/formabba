@@ -20,6 +20,8 @@ export interface Message {
     ofSameTypeAsLast: boolean,
     ofSameTypeAsNext: boolean,
     isFirstOfTheDay: boolean,
+    height: number,
+    lines: number,
 }
 
 export interface GoogleChatExport {
