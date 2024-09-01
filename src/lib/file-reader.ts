@@ -81,8 +81,6 @@ export function format(text: string, maxWidth: number, fontSize: number) {
         }
     }
 
-    console.log(wordCache)
-
     return { messages, senders };
 }
 
@@ -238,7 +236,7 @@ export function calculateTextBoxHeight(text: string, maxWidth: number) {
     }
 
     // if the last line is almost full, add another line
-    const errorRatePerLine = 0.25;
+    const errorRatePerLine = 0.2;
     const errorRate = 1 - errorRatePerLine * height;
     if (currentWidth > (maxWidth * errorRate)) {
         height++;

@@ -63,7 +63,7 @@
 		>
 			<span
 				style="opacity: 1; color: black; position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 1.8rem;"
-				>{message.height}px x {message.lines} Lines</span
+				>{message.height}px x {message.lines - 1} Lines</span
 			>
 		</div>
 	{/if}

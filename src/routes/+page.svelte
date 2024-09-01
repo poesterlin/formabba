@@ -89,16 +89,12 @@
 		const padding = 2 * fontSize;
 		const bubbleMaxSize = 0.6 * maxContainerSize - padding;
 
-		console.log({ bubbleMaxSize, fontSize });
-
 		return { bubbleMaxSize, fontSize };
 	}
 
 	async function search() {
 		const worker = getWorkerInstance();
 		searchResults = await worker.search(query);
-		console.log(searchResults);
-
 		searchResultIndex = 0;
 	}
 
