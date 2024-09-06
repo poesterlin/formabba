@@ -20,8 +20,7 @@ async function parse(file: File, maxWidth: number, fontSize: number) {
     setFont('"Gill Sans", Calibri');
 
     const text = await readFileAsText(file);
-    const type = file.type;
-    const res = type === "application/json" || isParsableJson(text) ? parseJson(text, maxWidth, fontSize) : format(text, maxWidth, fontSize);
+    const res = file.type === "application/json" || isFixableJson(text) ? parseJson(fixJson(text), maxWidth, fontSize) : format(text, maxWidth, fontSize);
     senders = res.senders;
 
     fuse.setCollection(res.messages);
@@ -38,6 +37,22 @@ function isParsableJson(text: string) {
     } catch {
         return false;
     }
+}
+
+function fixJson(text: string) {
+    if (!text.startsWith("{")) {
+        text = "{" + text;
+    }
+
+    if (!text.endsWith("}")) {
+        text += "}";
+    }
+
+    return text;
+}
+
+function isFixableJson(text: string) {
+    return isParsableJson(fixJson(text));
 }
 
 async function setMe(mySenderId: number) {

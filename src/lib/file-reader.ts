@@ -117,7 +117,6 @@ export function parseJson(text: string, maxWidth: number, fontSize: number) {
             const regex = /(?<day>\d{2})\. (?<month>.+?) (?<year>\d{4}) um (?<hour>\d{2}):(?<minute>\d{2}):(?<second>\d{2}).*$/
             const match = regex.exec(result.created_date)?.groups;
 
-
             let date = new Date();
             if (match) {
                 const month = months.indexOf(match.month);

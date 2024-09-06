@@ -1,0 +1,36 @@
+    "messages": [
+        {
+            "creator": {
+                "name": "Alice Smith",
+                "email": "alice.smith@example.com",
+                "user_type": "user"
+            },
+            "created_date": "2023-10-01T08:30:00Z",
+            "text": "Hello, team! Just a reminder about the meeting at 10 AM.",
+            "topic_id": "topic-001",
+            "message_id": "message-001"
+        },
+        {
+            "creator": {
+                "name": "Bob Johnson",
+                "email": "bob.johnson@example.com",
+                "user_type": "admin"
+            },
+            "created_date": "2023-10-01T09:00:00Z",
+            "text": "Thanks for the reminder, Alice. I'll be there.",
+            "topic_id": "topic-001",
+            "message_id": "message-002"
+        },
+        {
+            "creator": {
+                "name": "Charlie Brown",
+                "email": "charlie.brown@example.com",
+                "user_type": "user"
+            },
+            "created_date": "2023-10-01T09:15:00Z",
+            "text": "Looking forward to the meeting.",
+            "topic_id": "topic-001",
+            "message_id": "message-003"
+        }
+    ]
+}
