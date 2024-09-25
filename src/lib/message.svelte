@@ -1,8 +1,10 @@
 <script lang="ts">
-	import { MessageType, type Message, type Sender } from './types';
+	import Media from './media.svelte';
+	import { MessageType, type FileAttachment, type Message, type Sender } from './types';
 
 	export let message: Message;
 	export let senders: Sender[];
+	export let files: FileAttachment[];
 
 	$: sender = senders[message.senderId];
 	$: pos = message.type === MessageType.Sender ? (sender?.isMe ? 'right' : 'left') : 'center';
@@ -49,6 +51,9 @@
 		</small>
 	{/if}
 	<article style:background={sender?.color}>
+		{#if message.isFile}
+			<Media {message} {files} />
+		{/if}
 		<p>{@html message.text}</p>
 		<small style:text-align={pos}>
 			{formattedDate}

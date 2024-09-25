@@ -1,13 +1,13 @@
 <script lang="ts">
 	import Dropzone from '$lib/dropzone.svelte';
 	import MessageBubble from '$lib/message.svelte';
-	import type { Message, Sender } from '$lib/types';
+	import type { FileAttachment, Message, Sender } from '$lib/types';
 	import { getWorkerInstance } from '$lib/worker-helper';
 	import VirtualList from 'svelte-tiny-virtual-list';
-	import { tick } from 'svelte';
 
 	let messages: Message[] = [];
 	let senders: Sender[] = [];
+	let files: FileAttachment[] = [];
 	let mySenderId = 0;
 	let loading = false;
 	let start = 0;
@@ -56,6 +56,8 @@
 
 		messages = res.messages;
 		senders = res.senders;
+		files = res.files ?? [];
+		console.log(files);
 
 		fileName = file.name;
 
@@ -176,7 +178,7 @@
 				class:found={index === scrollToIndex && query}
 				class="no-scroll"
 			>
-				<MessageBubble message={messages[index]} {senders}></MessageBubble>
+				<MessageBubble message={messages[index]} {senders} {files}></MessageBubble>
 			</div>
 		</VirtualList>
 	</main>

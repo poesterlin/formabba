@@ -32,7 +32,9 @@
   "dependencies": {
     "@sveltejs/adapter-static": "^3.0.4",
     "@sveltejs/svelte-virtual-list": "^3.0.1",
+    "@zip.js/zip.js": "^2.7.52",
     "comlink": "^4.4.1",
+    "file-type": "^19.5.0",
     "fuse.js": "^7.0.0",
     "svelte-tiny-virtual-list": "^2.1.2"
   }

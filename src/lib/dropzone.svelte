@@ -19,31 +19,13 @@
 
 	function handleFileSelect(event: any) {
 		file = event.target.files[0];
-		abortIfZip();
 		dispatch('change', file);
 	}
 
 	function handleDrop(event: any) {
 		event.preventDefault();
 		file = event.dataTransfer.files[0];
-		abortIfZip();
 		dispatch('change', file);
-	}
-
-	function abortIfZip() {
-		if (!file) {
-			return;
-		}
-
-		const isZip = file.type === 'application/zip' || file.type === 'application/x-zip-compressed';
-
-		if (!isZip) {
-			return;
-		}
-
-		alert('Please extract the zip file and select the .txt file inside');
-		fileInput.value = '';
-		file = null;
 	}
 
 	function handleDragOver(event: any) {
